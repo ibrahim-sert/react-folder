@@ -179,7 +179,7 @@ const Filter = () => {
             displayEmpty
             inputProps={{ "aria-label": "Without label" }}
           >
-            <MenuItem value="">Rent / Sale</MenuItem>
+            <MenuItem value="Rent / Sale">Rent / Sale</MenuItem>
             <MenuItem value="Rent">Rent</MenuItem>
             <MenuItem value="Sale">Sale</MenuItem>
           </Select>
@@ -191,7 +191,7 @@ const Filter = () => {
             value={country}
             onChange={handleChangeCountry}
           >
-            <MenuItem value="">Country</MenuItem>
+            <MenuItem value="Country">Country</MenuItem>
             {filteredCountries.map((country) => (
               <MenuItem key={country} value={country}>
                 {country}
@@ -206,7 +206,7 @@ const Filter = () => {
             value={state}
             onChange={handleChangeState}
           >
-            <MenuItem value="">State</MenuItem>
+            <MenuItem value="State">State</MenuItem>
             {filteredStates.map((state) => (
               <MenuItem key={state} value={state}>
                 {state}
@@ -221,10 +221,10 @@ const Filter = () => {
             value={room}
             onChange={handleChangeRoom}
           >
-            <MenuItem value="">Room</MenuItem>
+            <MenuItem value="Room">Room</MenuItem>
             {filteredRooms.map((room) => (
               <MenuItem key={room} value={room}>
-                {room}
+                {room[0]}
               </MenuItem>
             ))}
           </Select>
