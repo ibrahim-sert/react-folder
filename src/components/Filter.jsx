@@ -13,43 +13,35 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
-// import data from "../data";
 import axios from "axios";
+
 function valuetext(value) {
   return `${value}°C`;
 }
 
 const Filter = () => {
+  const [filteredCountries, setFilteredCountries] = useState([]);
+  const [filteredRooms, setFilteredRooms] = useState([]);
   const [product, setProduct] = useState("");
   const [status, setStatus] = useState("Rent / Sale");
-  const [statuses, setStatuses] = useState("Rent / Sale");
+  const [statuses, setStatuses] = useState([]);
   const [country, setCountry] = useState("Country");
-  const [countries, setCountries] = useState("Country");
+  const [countries, setCountries] = useState([]);
   const [state, setState] = useState("State");
-  const [states, setStates] = useState("State");
+  const [states, setStates] = useState([]);
   const [room, setRoom] = useState("Room");
   const [rooms, setRooms] = useState([]);
   const [price, setPrice] = useState(0);
   const [search, setSearch] = useState("");
   const [sortOption, setSortOption] = useState("");
 
-  const [age, setAge] = React.useState("");
   const [value, setValue] = React.useState(0);
   const [products, setProducts] = useState([]);
 
   const [valueR, setValueR] = React.useState([20, 37]);
   const [filterProducts, setFilterProducts] = useState([]);
-  const getData = async () => {
-    const { data } = await axios(
-      "https://63ef8796271439b7fe70b81b.mockapi.io/api/v1/users"
-    );
 
-    setProducts(data);
-    setFilterProducts(data);
-  };
-  useEffect(() => {
-    getData();
-  }, []);
+  const [filteredStates, setFilteredStates] = useState([]);
 
   console.log(products);
   const btnSearch = {
@@ -78,80 +70,49 @@ const Filter = () => {
       backgroundColor: "white",
     },
   };
+  const getData = async () => {
+    try {
+      const response = await axios.get(
+        "https://63ef8796271439b7fe70b81b.mockapi.io/api/v1/users"
+      );
+      const data = response.data;
+      setProducts(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    getData();
+  }, []);
 
-  // useEffect(() => {
-  //   const filteredProducts = products?.filter((item) =>
-  //     // (status === "Rent / Sale" || item.status === status) &&
-  //     // (country === "Country" || item.country === country) &&
-  //     // (state === "State" || item.state === state) &&
-  //     // (room === "Room" || item.room === room) &&
-  //     // item.price === price &&
-  //     // item.title.toLowerCase().includes(search.toLowerCase())
+  useEffect(() => {
+    const filteredCountries = products
+      .filter((item) => item.status === status)
+      .map((item) => item.country);
+    setFilteredCountries([...new Set(filteredCountries)]);
+  }, [status, products]);
 
-  //     console.log(item)
-  //   );
+  useEffect(() => {
+    const filteredStates = products
+      .filter((item) => item.status === status && item.country === country)
+      .map((item) => item.state);
+    setFilteredStates([...new Set(filteredStates)]);
+  }, [status, country, products]);
 
-  //   if (sortOption === "az") {
-  //     filteredProducts.sort((a, b) => a.title.localeCompare(b.title));
-  //   } else if (sortOption === "za") {
-  //     filteredProducts.sort((a, b) => b.title.localeCompare(a.title));
-  //   } else if (sortOption === "lowToHigh") {
-  //     filteredProducts.sort((a, b) => a.price - b.price);
-  //   } else if (sortOption === "highToLow") {
-  //     filteredProducts.sort((a, b) => b.price - a.price);
-  //   }
-  //   const uniqueProduct = [
-  //     ...new Set(
-  //       products
-  //         .filter((item) => item.status.includes(status))
-  //         .map((item) => item.product)
-  //     ),
-  //   ];
-  //   const uniqueStatus = [
-  //     ...new Set(
-  //       products
-  //         .filter(
-  //           (item) =>
-  //             country === "Rent / Sale" || item.country.includes(country)
-  //         )
-  //         .map((item) => item.status)
-  //     ),
-  //   ];
-  //   const uniqueCountries = [
-  //     ...new Set(
-  //       products
-  //         .filter((item) => state === "Room" || item.state.includes(state))
-  //         .map((item) => item.country)
-  //     ),
-  //   ];
-  //   const uniqueStates = [
-  //     ...new Set(
-  //       products
-  //         .filter((item) => room === "Room" || item.room.includes(room))
-  //         .map((item) => item.state)
-  //     ),
-  //   ];
-  //   const uniqueRooms = [
-  //     ...new Set(
-  //       products
-  //         .filter((item) => state === "State" || item.state.includes(state))
-  //         .map((item) => item.room)
-  //     ),
-  //   ];
-  //   setProduct(uniqueProduct);
-  //   setStatus(uniqueStatus);
-  //   setCountry(uniqueCountries);
-  //   setState(uniqueStates);
-  //   setRoom(uniqueRooms);
-  //   setFilterProducts(filteredProducts);
-  // }, []);
+  useEffect(() => {
+    const filteredRooms = products
+      .filter(
+        (item) =>
+          item.status === status &&
+          item.country === country &&
+          item.state === state
+      )
+      .map((item) => item.room);
+    setFilteredRooms([...new Set(filteredRooms)]);
+  }, [status, country, state, products]);
 
   const handleRange = (event, newValueR) => {
     setValueR(newValueR);
-  };
-
-  const handleChange = (event) => {
-    setAge(event.target.value);
   };
 
   const handleProductChange = (e) => {
@@ -163,21 +124,32 @@ const Filter = () => {
   };
   const handleChangeStatus = (e) => {
     setStatus(e.target.value);
-    setCountry("Country");
-    setState("State");
-    setRoom("Room");
+    setCountry("");
+    setState("");
+    setRoom("");
   };
-  const handleChangeCountries = (e) => {
+
+  const handleChangeCountry = (e) => {
     setCountry(e.target.value);
-    setState("State");
-    setRoom("Room");
+    setState("");
+    setRoom("");
   };
-  const handleChangeStates = (e) => {
+
+  const handleChangeState = (e) => {
     setState(e.target.value);
-    setRoom("Room");
+    setRoom("");
   };
-  const handleChangeRooms = (e) => {
+
+  const handleChangeRoom = (e) => {
     setRoom(e.target.value);
+  };
+
+  const handleClear = () => {
+    setFilteredCountries([]);
+    setFilteredStates([]);
+    setFilteredRooms([]);
+    setRoom("");
+    setStatus("");
   };
 
   return (
@@ -207,58 +179,52 @@ const Filter = () => {
             displayEmpty
             inputProps={{ "aria-label": "Without label" }}
           >
-            <MenuItem value="Rent / Sale">Rent / Sale</MenuItem>
-            {products?.map((item) => (
-              <MenuItem key={item.id} value={item.status}>
-                {item.status}
-              </MenuItem>
-            ))}
+            <MenuItem value="">Rent / Sale</MenuItem>
+            <MenuItem value="Rent">Rent</MenuItem>
+            <MenuItem value="Sale">Sale</MenuItem>
           </Select>
         </FormControl>
+
         <FormControl sx={{ width: 200 }}>
           <Select
             sx={{ borderRadius: 5 }}
             value={country}
-            onChange={handleChangeCountries}
-            displayEmpty
-            inputProps={{ "aria-label": "Without label" }}
+            onChange={handleChangeCountry}
           >
-            <MenuItem value="Country">Country</MenuItem>
-            {products?.map((item) => (
-              <MenuItem key={item.id} value={item.country}>
-                {item.country}
+            <MenuItem value="">Country</MenuItem>
+            {filteredCountries.map((country) => (
+              <MenuItem key={country} value={country}>
+                {country}
               </MenuItem>
             ))}
           </Select>
         </FormControl>
+
         <FormControl sx={{ width: 200 }}>
           <Select
             sx={{ borderRadius: 5 }}
             value={state}
-            onChange={handleChangeStates}
-            displayEmpty
-            inputProps={{ "aria-label": "Without label" }}
+            onChange={handleChangeState}
           >
-            <MenuItem value="State">State</MenuItem>
-            {products?.map((item) => (
-              <MenuItem key={item.id} value={item.state}>
-                {item.state}
+            <MenuItem value="">State</MenuItem>
+            {filteredStates.map((state) => (
+              <MenuItem key={state} value={state}>
+                {state}
               </MenuItem>
             ))}
           </Select>
         </FormControl>
+
         <FormControl sx={{ width: 200 }}>
           <Select
             sx={{ borderRadius: 5 }}
             value={room}
-            onChange={handleChangeRooms}
-            displayEmpty
-            inputProps={{ "aria-label": "Without label" }}
+            onChange={handleChangeRoom}
           >
-            <MenuItem value="Room">Room</MenuItem>
-            {products?.map((item) => (
-              <MenuItem key={item.id} value={item.room}>
-                {item.room}
+            <MenuItem value="">Room</MenuItem>
+            {filteredRooms.map((room) => (
+              <MenuItem key={room} value={room}>
+                {room}
               </MenuItem>
             ))}
           </Select>
@@ -283,9 +249,10 @@ const Filter = () => {
       <Box sx={{ display: "flex", justifyContent: "space-around" }} mt={3}>
         <Box width="400px">
           <TextField
-            id="time"
-            type="text"
-            value="how"
+            id="search"
+            type="search"
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search..."
             sx={{ width: "400px" }}
           />
         </Box>
@@ -323,7 +290,7 @@ const Filter = () => {
         <Button sx={btnSearch} variant="contained">
           Search
         </Button>
-        <Button variant="contained" sx={btnClear}>
+        <Button onClick={handleClear} variant="contained" sx={btnClear}>
           Clear
         </Button>
       </Box>
